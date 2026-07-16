@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapping the Generative Frontier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Literata:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #120F20;
+    --bg-panel: #1B1633;
+    --bg-panel-2: #221B3E;
+    --violet: #8B6BFF;
+    --violet-soft: #C9BBFF;
+    --coral: #FF7A66;
+    --mint: #37D6A7;
+    --ink: #F4F1FF;
+    --ink-muted: #ABA2D4;
+    --line: rgba(244,241,255,0.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 0%, rgba(139,107,255,0.18), transparent 60%),
+      radial-gradient(ellipse 50% 35% at 90% 10%, rgba(255,122,102,0.10), transparent 60%),
+      var(--bg);
+    color: var(--ink);
+    font-family: 'Literata', serif;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  h1,h2,h3, .eyebrow, .mono{ font-family:'Space Grotesk', sans-serif; }
+  .mono{ font-family:'IBM Plex Mono', monospace; letter-spacing:0.03em; }
+
+  a{ color:inherit; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:0 28px; }
+
+  /* ---------- NAV DOTS ---------- */
+  .railnote{
+    position:fixed; right:22px; top:50%; transform:translateY(-50%);
+    display:flex; flex-direction:column; gap:14px; z-index:50;
+  }
+  .railnote span{
+    width:8px; height:8px; border-radius:50%;
+    background:rgba(244,241,255,0.18);
+    display:block;
+  }
+  @media (max-width: 860px){ .railnote{ display:none; } }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:92vh;
+    display:flex; flex-direction:column; justify-content:center;
+    position:relative;
+    padding:120px 0 80px;
+  }
+  .hero-glyph{
+    position:absolute; top:8%; right:-6%; width:520px; height:520px;
+    opacity:0.55; pointer-events:none;
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:10px;
+    font-size:13px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--mint); margin-bottom:26px; font-weight:500;
+  }
+  .eyebrow::before{
+    content:''; width:26px; height:1px; background:var(--mint);
+  }
+  .hero h1{
+    font-size: clamp(2.4rem, 6vw, 4.4rem);
+    font-weight:600; line-height:1.05; letter-spacing:-0.02em;
+    max-width:14ch;
+    background:linear-gradient(100deg, var(--ink) 30%, var(--violet-soft) 70%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero p.lede{
+    margin-top:26px; max-width:56ch; font-size:1.15rem; color:var(--ink-muted);
+    font-style:italic;
+  }
+  .outcomes{
+    margin-top:52px; display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+  }
+  .outcomes div{
+    background:var(--bg-panel); padding:20px 18px; font-size:0.92rem; color:var(--ink-muted);
+  }
+  .outcomes strong{ display:block; color:var(--ink); font-family:'Space Grotesk',sans-serif; font-size:0.95rem; margin-bottom:6px; }
+  @media (max-width: 760px){ .outcomes{ grid-template-columns:1fr 1fr; } }
+  @media (max-width: 480px){ .outcomes{ grid-template-columns:1fr; } }
+
+  /* ---------- SECTION SHELL ---------- */
+  section.block{ padding:110px 0; position:relative; }
+  .kicker{
+    font-size:13px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--coral); font-weight:500; margin-bottom:18px;
+  }
+  h2.title{
+    font-size:clamp(1.9rem, 4vw, 2.7rem); font-weight:600; letter-spacing:-0.01em;
+    max-width:18ch; margin-bottom:20px;
+  }
+  .intro{ max-width:60ch; color:var(--ink-muted); font-size:1.05rem; }
+
+  /* ---------- MINDMAP (Applications) ---------- */
+  .mapzone{
+    position:relative; margin-top:70px; min-height:640px;
+  }
+  .hub{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:158px; height:158px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--violet), #5B3FD1 70%);
+    display:flex; align-items:center; justify-content:center;
+    text-align:center; font-family:'Space Grotesk',sans-serif; font-weight:600;
+    font-size:1rem; color:white; box-shadow:0 0 0 1px rgba(255,255,255,0.08), 0 30px 60px -20px rgba(139,107,255,0.6);
+    z-index:3; padding:10px;
+  }
+  .node{
+    position:absolute; width:230px;
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:14px;
+    padding:18px 20px; z-index:2;
+  }
+  .node .n-model{ font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--mint); text-transform:uppercase; letter-spacing:0.06em; }
+  .node h4{ font-family:'Space Grotesk',sans-serif; font-size:1.02rem; margin:6px 0 8px; font-weight:600; }
+  .node p{ font-size:0.86rem; color:var(--ink-muted); }
+  .n1{ left:50%; top:2%;  transform:translateX(-50%); }
+  .n2{ left:84%; top:22%; }
+  .n3{ left:84%; top:64%; }
+  .n4{ left:2%;  top:64%; }
+  .n5{ left:2%;  top:22%; }
+  svg.links{ position:absolute; inset:0; width:100%; height:100%; z-index:1; }
+  svg.links line{ stroke:var(--line); stroke-width:1.4; }
+
+  @media (max-width: 900px){
+    .mapzone{ min-height:auto; }
+    .hub{ position:static; transform:none; margin:0 auto 28px; }
+    .node{ position:static; width:100%; margin-bottom:14px; }
+    svg.links{ display:none; }
+  }
+
+  /* ---------- TIMELINE ---------- */
+  .timeline{ margin-top:70px; position:relative; }
+  .timeline::before{
+    content:''; position:absolute; left:120px; top:0; bottom:0; width:1px;
+    background:linear-gradient(var(--violet), var(--coral), var(--mint));
+  }
+  .t-row{ display:flex; gap:36px; position:relative; padding-bottom:52px; }
+  .t-year{
+    width:120px; flex-shrink:0; font-family:'IBM Plex Mono',monospace; font-size:0.95rem;
+    color:var(--violet-soft); padding-top:4px; text-align:right; padding-right:36px; position:relative;
+  }
+  .t-year::after{
+    content:''; position:absolute; right:-5px; top:9px; width:10px; height:10px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--coral);
+  }
+  .t-card{
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:22px 26px; flex:1;
+  }
+  .t-card h4{ font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:600; margin-bottom:6px; }
+  .t-card .tag{ font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--mint); text-transform:uppercase; }
+  .t-card p{ color:var(--ink-muted); font-size:0.92rem; margin-top:8px; }
+  @media (max-width:700px){
+    .timeline::before{ left:14px; }
+    .t-row{ gap:20px; }
+    .t-year{ width:60px; text-align:left; padding-right:0; padding-left:26px; font-size:0.8rem; }
+    .t-year::after{ right:auto; left:9px; }
+  }
+
+  /* ---------- DEMO CARDS (Platforms) ---------- */
+  .demo-grid{
+    margin-top:64px; display:grid; grid-template-columns:1fr 1fr; gap:22px;
+  }
+  @media (max-width:760px){ .demo-grid{ grid-template-columns:1fr; } }
+  .demo{
+    background:var(--bg-panel-2); border:1px solid var(--line); border-radius:16px; padding:26px; position:relative; overflow:hidden;
+  }
+  .demo::before{
+    content:''; position:absolute; top:-40%; right:-30%; width:200px; height:200px; border-radius:50%;
+    background:radial-gradient(circle, var(--glow, var(--violet)) 0%, transparent 70%); opacity:0.35;
+  }
+  .demo .d-mark{
+    width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    background:var(--glow, var(--violet)); margin-bottom:16px; position:relative; z-index:1;
+  }
+  .demo .d-mark svg{ width:18px; height:18px; }
+  .demo h4{ font-family:'Space Grotesk',sans-serif; font-size:1.05rem; margin-bottom:4px; position:relative; z-index:1; }
+  .demo .d-sub{ font-size:0.78rem; color:var(--ink-muted); margin-bottom:14px; font-family:'IBM Plex Mono',monospace; position:relative; z-index:1; }
+  .demo .before, .demo .after{ font-size:0.88rem; position:relative; z-index:1; }
+  .demo .before{ color:var(--ink-muted); padding-left:14px; border-left:2px solid var(--line); margin-bottom:12px; }
+  .demo .after{ color:var(--ink); padding-left:14px; border-left:2px solid var(--mint); }
+  .demo .label{ font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-muted); margin-bottom:4px; display:block; }
+
+  /* ---------- LITERATURE ---------- */
+  .lit-list{ margin-top:60px; display:flex; flex-direction:column; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+  .lit-item{ background:var(--bg-panel); padding:28px 30px; }
+  .lit-item h4{ font-family:'Space Grotesk',sans-serif; font-size:1.08rem; margin-bottom:10px; }
+  .lit-item h4 em{ color:var(--coral); font-style:normal; }
+  .lit-item p{ color:var(--ink-muted); font-size:0.94rem; max-width:70ch; }
+
+  .qa{ margin-top:56px; display:grid; gap:16px; }
+  .qa-item{ display:grid; grid-template-columns:44px 1fr; gap:18px; }
+  .qa-letter{
+    width:44px; height:44px; border-radius:50%; background:var(--bg-panel); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; color:var(--mint); font-size:0.9rem;
+  }
+  .qa-item h5{ font-family:'Space Grotesk',sans-serif; font-size:1rem; margin-bottom:6px; font-weight:600; }
+  .qa-item p{ color:var(--ink-muted); font-size:0.94rem; }
+
+  /* ---------- FOOTER / CONCLUSION ---------- */
+  footer{
+    padding:100px 0 70px; border-top:1px solid var(--line); margin-top:40px;
+    background:linear-gradient(180deg, transparent, rgba(139,107,255,0.06));
+  }
+  footer h3{ font-family:'Space Grotesk',sans-serif; font-size:1.6rem; max-width:24ch; margin-bottom:18px; font-weight:600; }
+  footer p{ color:var(--ink-muted); max-width:64ch; }
+  footer .sign{ margin-top:40px; font-family:'IBM Plex Mono',monospace; font-size:0.8rem; color:var(--ink-muted); }
+
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:none; }
+</style>
+</head>
+<body>
+
+<div class="railnote"><span></span><span></span><span></span><span></span><span></span></div>
+
+<!-- HERO -->
+<header class="hero wrap">
+  <svg class="hero-glyph" viewBox="0 0 400 400" fill="none">
+    <circle cx="200" cy="200" r="1" stroke="var(--violet)" stroke-opacity="0.5"/>
+    <g stroke="var(--violet-soft)" stroke-opacity="0.35">
+      <circle cx="200" cy="200" r="60"/>
+      <circle cx="200" cy="200" r="120"/>
+      <circle cx="200" cy="200" r="180"/>
+    </g>
+    <g fill="var(--coral)">
+      <circle cx="200" cy="20" r="4"/>
+      <circle cx="380" cy="200" r="3"/>
+      <circle cx="80" cy="330" r="3"/>
+      <circle cx="320" cy="330" r="4"/>
+      <circle cx="40" cy="120" r="3"/>
+    </g>
+  </svg>
+  <p class="eyebrow">Generative AI &mdash; Lab Experiment 01</p>
+  <h1>Mapping the Generative Frontier</h1>
+  <p class="lede">A working exploration of how generative models moved from research curiosity to everyday infrastructure &mdash; where they're used, how they evolved, what they can already do, and what the field's own writing says about where this is heading.</p>
+  <div class="outcomes">
+    <div><strong>Concept</strong>Why generative AI represents a shift in what machines can produce, not just predict.</div>
+    <div><strong>Applications</strong>Where these models are already changing real workflows, across industries.</div>
+    <div><strong>Lineage</strong>How foundation models evolved from single-task tools into general-purpose systems.</div>
+    <div><strong>Practice</strong>What these platforms actually do when you hand them a prompt.</div>
+  </div>
+</header>
+
+<!-- APPLICATION MAPPING -->
+<section class="block wrap" id="applications">
+  <p class="kicker reveal">01 &mdash; Where it already lives</p>
+  <h2 class="title reveal">Five places generative AI has quietly moved in</h2>
+  <p class="intro reveal">Each of these isn't a demo &mdash; it's a live use case with a model doing real work behind it, and a societal question trailing right behind the convenience.</p>
+
+  <div class="mapzone reveal">
+    <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <line x1="50" y1="50" x2="50" y2="8"/>
+      <line x1="50" y1="50" x2="82" y2="26"/>
+      <line x1="50" y1="50" x2="82" y2="68"/>
+      <line x1="50" y1="50" x2="18" y2="68"/>
+      <line x1="50" y1="50" x2="18" y2="26"/>
+    </svg>
+    <div class="hub">Generative<br>AI</div>
+
+    <div class="node n1">
+      <div class="n-model">Model &mdash; GPT‑4 / Claude</div>
+      <h4>Content &amp; copy creation</h4>
+      <p>Drafting articles, ad copy, and scripts in seconds. Impact: democratizes creative output, but blurs the line around authorship and originality.</p>
+    </div>
+
+    <div class="node n2">
+      <div class="n-model">Model &mdash; AlphaFold / DiffDock</div>
+      <h4>Drug discovery</h4>
+      <p>Generating candidate protein structures and molecule designs. Impact: shrinks years of lab work into weeks, though access to the tooling stays concentrated.</p>
+    </div>
+
+    <div class="node n3">
+      <div class="n-model">Model &mdash; Codex / Copilot</div>
+      <h4>Code generation</h4>
+      <p>Autocompleting functions and scaffolding entire files from a comment. Impact: raises developer output, but shifts responsibility for reviewing AI-written logic.</p>
+    </div>
+
+    <div class="node n4">
+      <div class="n-model">Model &mdash; Stable Diffusion / DALL·E</div>
+      <h4>Image &amp; design generation</h4>
+      <p>Turning text prompts into illustrations, concept art, and product mockups. Impact: reshapes design workflows, and reopens the copyright debate.</p>
+    </div>
+
+    <div class="node n5">
+      <div class="n-model">Model &mdash; ChatGPT / Claude</div>
+      <h4>Conversational support</h4>
+      <p>Handling first-line customer queries and internal knowledge lookup. Impact: faster response times for users, fewer entry-level support roles.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="block wrap" id="timeline" style="background:var(--bg-panel); border-radius:28px;">
+  <p class="kicker reveal">02 &mdash; A lineage, not a single leap</p>
+  <h2 class="title reveal">The models that built the foundation</h2>
+  <p class="intro reveal">From a single paper proving pretraining works, to a router deciding how hard to think &mdash; the foundation model era in nine stops.</p>
+
+  <div class="timeline reveal">
+    <div class="t-row">
+      <div class="t-year">2018</div>
+      <div class="t-card">
+        <span class="tag">BERT &middot; Google</span>
+        <h4>Reading in both directions</h4>
+        <p>Introduced bidirectional context, letting a model read a whole sentence at once instead of left-to-right &mdash; a breakthrough for understanding-heavy tasks like search and classification.</p>
+      </div>
+    </div>
+    <div class="t-row">
+      <div class="t-year">2018</div>
+      <div class="t-card">
+        <span class="tag">GPT‑1 &middot; OpenAI</span>
+        <h4>Proof that pretraining transfers</h4>
+        <p>Showed that a model pretrained on unlabeled text could be fine-tuned for many downstream tasks &mdash; the seed idea behind every foundation model that followed.</p>
+      </div>
+    </div>
+    <div class="t-row">
+      <div class="t-year">2019</div>
+      <div class="t-card">
+        <span class="tag">GPT‑2 &middot; OpenAI</span>
+        <h4>Coherent text, and a staged release</h4>
+        <p>Scaled up to 1.5B parameters and generated long, fluent passages good enough that OpenAI staggered its release over misuse concerns &mdash; the first time model capability itself became a policy question.</p>
+      </div>
+    </div>
+    <div class="t-row">
+      <div class="t-year">2020</div>
+      <div class="t-card">
+        <span class="tag">GPT‑3 &middot; OpenAI</span>
+        <h4>Few-shot learning at scale</h4>
+        <p>175B parameters and the ability to perform new tasks from just a few examples in the prompt, with no retraining. This is the release that made "foundation model" a useful term.</p>
+      </div>
+    </div>
+    <div class="t-row">
+      <div class="t-year">2022</div>
+      <div class="t-card">
+        <span class="tag">PaLM &middot; Google</span>
+        <h4>Reasoning at 540B parameters</h4>
+        <p>Pushed scale further and showed strong multi-step reasoning and multilingual performance, reinforcing that capability kept climbing with size and data.</p>
+      </div>
+    </div>
+    <div class="t-row">
+      <div class="t-year">Nov 2022</div>
+      <div class="t-card">
+        <span class="tag">ChatGPT (GPT‑3.5) &middot; OpenAI</span>
+        <h4>The moment it left the lab</h4>
+        <p>Conversational fine-tuning turned a research model into a product anyone could use in a browser &mdash; the fastest-adopted consumer app in history at the time.</p>
+      </div>
+    </div>
+    <div class="t-row">
+      <div class="t-year">Feb 2023</div>
+      <div class="t-card">
+        <span class="tag">LLaMA &middot; Meta</span>
+        <h4>Opening the weights</h4>
+        <p>Smaller, more efficient models released for research use sparked an open-source ecosystem of fine-tunes and local deployments outside the big labs.</p>
+      </div>
+    </div>
+    <div class="t-row">
+      <div class="t-year">Mar 2023</div>
+      <div class="t-card">
+        <span class="tag">GPT‑4 &middot; OpenAI</span>
+        <h4>Multimodal reasoning</h4>
+        <p>Added image understanding alongside text and a marked jump in reliability on exams, logic, and long-context tasks.</p>
+      </div>
+    </div>
+    <div class="t-row">
+      <div class="t-year">2025</div>
+      <div class="t-card">
+        <span class="tag">GPT‑5 &middot; OpenAI</span>
+        <h4>A system, not a single model</h4>
+        <p>Unified a fast responder and a slower "thinking" model behind a real-time router &mdash; the current shape of the frontier: knowing when to answer instantly and when to reason longer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORM DEMOS -->
+<section class="block wrap" id="platforms">
+  <p class="kicker reveal">03 &mdash; Hands on the platforms</p>
+  <h2 class="title reveal">Four things asked of a no-code model</h2>
+  <p class="intro reveal">Working across Hugging Face Spaces and comparable prompt playgrounds, the same four exercises come up again and again. Here's what each looked like in practice.</p>
+
+  <div class="demo-grid">
+    <div class="demo" style="--glow:var(--violet)">
+      <div class="d-mark"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path d="M4 19c4-8 6-12 8-14M12 5c3 0 5 2 5 5s-3 5-6 5"/><circle cx="18" cy="17" r="2"/></svg></div>
+      <h4>Story from a prompt</h4>
+      <span class="d-sub">text generation &middot; GPT‑2 / GPT‑J</span>
+      <span class="label">Prompt</span>
+      <div class="before">"A lighthouse keeper finds a message in a bottle addressed to someone who hasn't been born yet."</div>
+      <span class="label">Generated opening</span>
+      <div class="after">The ink had faded to the colour of tea, but the date at the top was thirty years out &mdash; and it was hers.</div>
+    </div>
+
+    <div class="demo" style="--glow:var(--mint)">
+      <div class="d-mark"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path d="M5 6h14M5 12h14M5 18h8"/></svg></div>
+      <h4>Summarizing an abstract</h4>
+      <span class="d-sub">summarization &middot; PaLM 2 / GPT‑3.5</span>
+      <span class="label">Input</span>
+      <div class="before">A 250-word abstract on transfer learning across low-resource languages, covering method, dataset, and results.</div>
+      <span class="label">Output</span>
+      <div class="after">Fine-tuning a shared multilingual base model beat training from scratch on every low-resource language tested, with the biggest gains where training data was scarcest.</div>
+    </div>
+
+    <div class="demo" style="--glow:var(--coral)">
+      <div class="d-mark"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h10" stroke-linecap="round"/></svg></div>
+      <h4>List into paragraph</h4>
+      <span class="d-sub">rewriting &middot; GPT‑3.5</span>
+      <span class="label">Before</span>
+      <div class="before">&bull; Faster onboarding &bull; Lower support costs &bull; 24/7 availability</div>
+      <span class="label">After</span>
+      <div class="after">Onboarding gets faster, support costs drop, and none of it clocks out &mdash; the assistant is on call around the clock.</div>
+    </div>
+
+    <div class="demo" style="--glow:var(--violet)">
+      <div class="d-mark"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.4"/><path d="M4 16l5-4 4 3 3-2 4 3"/></svg></div>
+      <h4>Image from text</h4>
+      <span class="d-sub">text-to-image &middot; Stable Diffusion / SDXL</span>
+      <span class="label">Prompt</span>
+      <div class="before">"A quiet library at dawn, light through tall windows, watercolor style."</div>
+      <span class="label">Result</span>
+      <div class="after">A soft, warm-lit interior rendered in loose watercolour washes &mdash; recognisably a library, but every generation slightly different.</div>
+    </div>
+  </div>
+</section>
+
+<!-- LITERATURE -->
+<section class="block wrap" id="literature" style="background:var(--bg-panel); border-radius:28px;">
+  <p class="kicker reveal">04 &mdash; What the field's own writing says</p>
+  <h2 class="title reveal">Reading the literature</h2>
+  <p class="intro reveal">Three pieces, read back to back, sketch the shape of the argument around foundation models &mdash; what they are, why they matter, and how they actually work under the hood.</p>
+
+  <div class="lit-list reveal">
+    <div class="lit-item">
+      <h4><em>01</em> &nbsp;"What Are Foundation Models?" &mdash; Stanford CRFM</h4>
+      <p>Coined the term itself: a single model trained on broad, largely unlabeled data at massive scale, adaptable to many downstream tasks through fine-tuning or prompting. The piece is as much a warning as a definition &mdash; centralizing so much capability into one base model means its flaws and biases inherit downstream into everything built on top of it.</p>
+    </div>
+    <div class="lit-item">
+      <h4><em>02</em> &nbsp;"The Age of Generative AI" &mdash; OpenAI Blog</h4>
+      <p>Frames generative AI as a general-purpose shift on the scale of earlier computing transitions &mdash; touching creative work, scientific research, and everyday productivity at once. It argues the technology should be scaled deliberately, with safety and access treated as part of the product, not an afterthought.</p>
+    </div>
+    <div class="lit-item">
+      <h4><em>03</em> &nbsp;"How Does ChatGPT Work?" &mdash; Stephen Wolfram</h4>
+      <p>Strips the mystique away: the model is repeatedly predicting the most statistically plausible next word, one token at a time, using a neural network shaped by the transformer architecture. What's surprising isn't the mechanism, Wolfram argues, but that something this simple, run at this scale, produces language that reads as coherent thought.</p>
+    </div>
+  </div>
+
+  <div class="qa reveal">
+    <div class="qa-item">
+      <div class="qa-letter">a</div>
+      <div>
+        <h5>What separates a foundation model from a traditional NLP model?</h5>
+        <p>A traditional NLP model is usually trained from scratch for one task on labeled data. A foundation model is pretrained once on broad, largely unlabeled data at massive scale, then adapted &mdash; through fine-tuning or just a good prompt &mdash; to many different tasks it was never explicitly trained for.</p>
+      </div>
+    </div>
+    <div class="qa-item">
+      <div class="qa-letter">b</div>
+      <div>
+        <h5>Where does GenAI show up inside an AI discipline itself?</h5>
+        <p>Most visibly in code generation and debugging assistance, but also in accelerating literature reviews, generating synthetic training data, and prototyping model architectures faster than a solo researcher could by hand.</p>
+      </div>
+    </div>
+    <div class="qa-item">
+      <div class="qa-letter">c</div>
+      <div>
+        <h5>What ethical or societal concerns come with it?</h5>
+        <p>Hallucinated but confident-sounding answers, bias inherited from training data at internet scale, unclear copyright status of generated work, job displacement in content and support roles, and a concentration of the compute and capital needed to train these models in a handful of organizations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap reveal">
+  <h3>The through-line</h3>
+  <p>Every stop on this page traces back to the same idea: a model that learns the general shape of language and image, once, at scale &mdash; and then gets pointed at whatever task shows up next. That reusability is the whole reason a research artifact turned into infrastructure this fast.</p>
+  <p class="sign">SVKM's NMIMS &middot; MPSTME &middot; B.Tech AI &middot; Generative AI Lab &middot; Experiment 01</p>
+</footer>
+
+<script>
+  const items = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  items.forEach(i=>io.observe(i));
+</script>
+
+</body>
+</html>
